@@ -38,9 +38,8 @@ Contributions
 
 Requirements
 ------------
-* BASH
-* `seq`
-* `grep` - With `-E` support
+* `bash` >= 3.x
+* `grep` with `-E` support
 * `sed`
 
 Seriously, that's it. I'm as shocked as you are.

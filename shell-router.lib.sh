@@ -37,7 +37,7 @@ shellrouteProcess() {
 
 	ARGS_ORIG=("${@}")
 
-	for ROUTE_I in $(seq 1 "${__SHELL_ROUTER_N}"); do
+	for ((ROUTE_I="1"; ROUTE_I <= __SHELL_ROUTER_N; ROUTE_I++)); do
 		ARGS=("${ARGS_ORIG[@]}")
 		eval "ROUTE=(${__SHELL_ROUTER_ROUTES[ROUTE_I]})"
 		COMMAND_ARGS=()

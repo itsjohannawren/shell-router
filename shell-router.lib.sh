@@ -25,15 +25,17 @@
 __SHELL_ROUTER_N="0"
 __SHELL_ROUTER_COMMANDS=()
 __SHELL_ROUTER_ROUTES=()
+__SHELL_ROUTER_OPTIONS=()
 
 shellrouteAdd() {
 	__SHELL_ROUTER_N="$((__SHELL_ROUTER_N + 1))"
 	__SHELL_ROUTER_COMMANDS[__SHELL_ROUTER_N]="${1}"
 	__SHELL_ROUTER_ROUTES[__SHELL_ROUTER_N]="${2}"
+	__SHELL_ROUTER_OPTIONS[__SHELL_ROUTER_N]="${3}"
 }
 
 shellrouteProcess() {
-	local COMMAND_ARGS ARGS_ORIG ARGS ROUTE_I MATCH ROUTE
+	local COMMAND_ARGS COMMAND_OPTS ARGS_ORIG ARGS ROUTE_I MATCH ROUTE OPTIONS_SPEC OPTION
 
 	ARGS_ORIG=("${@}")
 
@@ -41,6 +43,7 @@ shellrouteProcess() {
 		ARGS=("${ARGS_ORIG[@]}")
 		eval "ROUTE=(${__SHELL_ROUTER_ROUTES[ROUTE_I]})"
 		COMMAND_ARGS=()
+		COMMAND_OPTS=()
 		MATCH="n"
 
 		while true; do
@@ -54,7 +57,69 @@ shellrouteProcess() {
 				break
 			fi
 
-			if grep -qE '^:.+\*$' <<<"${ROUTE[0]}"; then
+			if grep -qE '^::.+\*$' <<<"${ROUTE[0]}"; then
+				# Optional options, all the way to the end
+				if [ "${#ROUTE[@]}" != "1" ]; then
+					MATCH="n"
+					break
+				fi
+				if [ "${#ARGS[@]}" != "0" ]; then
+					# Parse options
+					OPTIONS_SPEC=($(sed -e 's/^:://' -e 's/\*$//' -e 's/,/ /g' <<<"${ROUTE[0]}"))
+					while [ "${#ARGS[@]}" != "0" ]; do
+						for OPTION in "${OPTIONS_SPEC[@]}"; do
+							if grep -qE "^${ARGS[0]}:?\$" <<<"${OPTION}"; then
+								if ! grep -qE ':$' <<<"${OPTION}"; then
+									COMMAND_OPTS+=("OPT_${OPTION%:}=\"1\"")
+								elif [ "${#ARGS[@]}" -ge "2" ]; then
+									COMMAND_OPTS+=("OPT_${OPTION%:}=\"$(sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' <<<"${ARGS[1]}")\"")
+									ARGS=("${ARGS[@]:1}")
+								else
+									echo "Error: Option \"${OPTION%:}\" expects a parameter, but none exists" 1>&2
+									return 1
+								fi
+								break
+							fi
+						done
+						ARGS=("${ARGS[@]:1}")
+					done
+				fi
+				MATCH="y"
+				break
+
+			elif grep -qE '^::.+\+$' <<<"${ROUTE[0]}"; then
+				# Required options, all the way to the end
+				if [ "${#ROUTE[@]}" != "1" ]; then
+					MATCH="n"
+					break
+				fi
+				if [ "${#ARGS[@]}" != "0" ]; then
+					# Parse options
+					OPTIONS_SPEC=($(sed -e 's/^:://' -e 's/\*$//' -e 's/,/ /g' <<<"${ROUTE[0]}"))
+					while [ "${#ARGS[@]}" != "0" ]; do
+						for OPTION in "${OPTIONS_SPEC[@]}"; do
+							if grep -qE "^${ARGS[0]}:?\$" <<<"${OPTION}"; then
+								if ! grep -qE ':$' <<<"${OPTION}"; then
+									COMMAND_OPTS+=("OPT_${OPTION%:}=\"1\"")
+								elif [ "${#ARGS[@]}" -ge "2" ]; then
+									COMMAND_OPTS+=("OPT_${OPTION%:}=\"$(sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' <<<"${ARGS[1]}")\"")
+									ARGS=("${ARGS[@]:1}")
+								else
+									echo "Error: Option \"${OPTION%:}\" expects a parameter, but none exists" 1>&2
+									return 1
+								fi
+								break
+							fi
+						done
+						ARGS=("${ARGS[@]:1}")
+					done
+					MATCH="y"
+				else
+					MATCH="n"
+				fi
+				break
+
+			elif grep -qE '^:.+\*$' <<<"${ROUTE[0]}"; then
 				# Optional variable, all the way to the end
 				if [ "${#ROUTE[@]}" != "1" ]; then
 					MATCH="n"
@@ -139,7 +204,7 @@ shellrouteProcess() {
 	done
 
 	if [ "${MATCH}" = "y" ]; then
-		"${__SHELL_ROUTER_COMMANDS[ROUTE_I]}" "${COMMAND_ARGS[@]}"
+		"${__SHELL_ROUTER_COMMANDS[ROUTE_I]}" "${COMMAND_ARGS[@]}" "${COMMAND_OPTS[@]}"
 		return 0
 	fi
 

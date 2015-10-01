@@ -50,6 +50,12 @@ Usage
 * `shellrouteAdd <COMMAND> <ROUTE>`:
     * `<COMMAND>`: When the route matches this command will be called any parameters passed as `eval`able strings.
     * `<ROUTE>`: This is what the command line arguments will be matched against. It follows the same idea as Express.js with some additions.
+        * `::<OPTIONS>*` - An optional set of options that must be the last element of the route. Options are separated with commas, not spaces. The syntax for the options is as follows:
+            * `<OPTION>:` - An option that requires an argument. Beware, if a user fails to provide the argument and follows the option with another option, the second option will be interpreted as the argument. So ALWAYS check input.
+            * `<OPTION>` - An option that can be thought of as a flag.
+        * `::<OPTIONS>+` - A required set of options that must be the last element of the route. Options are separated with commas, not spaces. The syntax for the options is as follows:
+            * `<OPTION>:` - An option that requires an argument. Beware, if a user fails to provide the argument and follows the option with another option, the second option will be interpreted as the argument. So ALWAYS check input.
+            * `<OPTION>` - An option that can be thought of as a flag.
         * `:<NAME>*` - An optional parameter that captures the remainder of arguments, if any. This must be the last element of the route.
         * `:<NAME>+` - A required parameter that captures the remainder of arguments. This must be the last element of the route.
         * `:<NAME>?` - An optional parameter that captures only the last argument. This must be the last element of the route.

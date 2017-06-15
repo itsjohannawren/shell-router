@@ -33,7 +33,16 @@ shellrouteAdd() {
 	__SHELL_ROUTER_ROUTES[__SHELL_ROUTER_N]="${2}"
 	__SHELL_ROUTER_OPTIONS[__SHELL_ROUTER_N]="${3}"
 }
+shellrouteSerializeArray() {
+	local OUTPUT ELEMENT
 
+	OUTPUT=""
+	for ELEMENT in "${@}"; do
+		OUTPUT="${OUTPUT} \"$(sed -e 's/\\/\\\\/g' -e 's/"/\"/g' -e 's/\$/\\$/g' <<<"${ELEMENT}")\""
+	done
+
+	echo "($(sed -e 's/^ //' <<<"${OUTPUT}"))"
+}
 shellrouteProcess() {
 	local COMMAND_ARGS COMMAND_OPTS ARGS_ORIG ARGS ROUTE_I MATCH ROUTE OPTIONS_SPEC OPTION
 
@@ -117,6 +126,18 @@ shellrouteProcess() {
 				else
 					MATCH="n"
 				fi
+				break
+
+			elif grep -qE '^:.+@$' <<<"${ROUTE[0]}"; then
+				# Optional arguments, all the way to the end
+				if [ "${#ROUTE[@]}" != "1" ]; then
+					MATCH="n"
+					break
+				fi
+				if [ "${#ARGS[@]}" != "0" ]; then
+					COMMAND_ARGS+=("ARGV=$(shellrouteSerializeArray "${ARGS[@]}")")
+				fi
+				MATCH="y"
 				break
 
 			elif grep -qE '^:.+\*$' <<<"${ROUTE[0]}"; then

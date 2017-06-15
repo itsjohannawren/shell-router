@@ -135,7 +135,7 @@ shellrouteProcess() {
 					break
 				fi
 				if [ "${#ARGS[@]}" != "0" ]; then
-					COMMAND_ARGS+=("ARGV=$(shellrouteSerializeArray "${ARGS[@]}")")
+					COMMAND_ARGS+=("ARGV_$(sed -e 's/^://' -e 's/\*$//' <<<"${ROUTE[0]}")=$(shellrouteSerializeArray "${ARGS[@]}")")
 				fi
 				MATCH="y"
 				break

@@ -58,6 +58,7 @@ Usage
             * `<OPTION>` - An option that can be thought of as a flag.
         * `:<NAME>*` - An optional parameter that captures the remainder of arguments, if any. This must be the last element of the route.
         * `:<NAME>+` - A required parameter that captures the remainder of arguments. This must be the last element of the route.
+        * `:<NAME>@` - A required set of parameters that captures the remainder of arguments. This must be the last element of the route.
         * `:<NAME>?` - An optional parameter that captures only the last argument. This must be the last element of the route.
         * `:<NAME>` - A required parameter that captures one argument.
         * `<STRING>?` - An optional static parameter.

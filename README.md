@@ -51,17 +51,17 @@ Usage
     * `<COMMAND>`: When the route matches this command will be called any parameters passed as `eval`able strings.
     * `<ROUTE>`: This is what the command line arguments will be matched against. It follows the same idea as Express.js with some additions.
         * `::<OPTIONS>*` - An optional set of options that must be the last element of the route. Options are separated with commas, not spaces. The syntax for the options is as follows:
-            * `<OPTION>:` - An option that requires an argument. Beware, if a user fails to provide the argument and follows the option with another option, the second option will be interpreted as the argument. So ALWAYS check input.
-            * `<OPTION>` - An option that can be thought of as a flag.
+            * `<OPTION>:` - An option that requires an argument. Beware, if a user fails to provide the argument and follows the option with another option, the second option will be interpreted as the argument. So ALWAYS check input. Assigns value to `OPT_<OPTION>`.
+            * `<OPTION>` - An option that can be thought of as a flag. Assigns `1` to `OPT_<OPTION>`.
         * `::<OPTIONS>+` - A required set of options that must be the last element of the route. Options are separated with commas, not spaces. The syntax for the options is as follows:
-            * `<OPTION>:` - An option that requires an argument. Beware, if a user fails to provide the argument and follows the option with another option, the second option will be interpreted as the argument. So ALWAYS check input.
-            * `<OPTION>` - An option that can be thought of as a flag.
-        * `:<NAME>*` - An optional parameter that captures the remainder of arguments, if any. This must be the last element of the route.
-        * `:<NAME>+` - A required parameter that captures the remainder of arguments. This must be the last element of the route.
-        * `:<NAME>@` - A required set of parameters that captures the remainder of arguments. This must be the last element of the route.
-        * `:<NAME>?` - An optional parameter that captures only the last argument. This must be the last element of the route.
-        * `:<NAME>` - A required parameter that captures one argument.
-        * `<STRING>?` - An optional static parameter.
+            * `<OPTION>:` - An option that requires an argument. Beware, if a user fails to provide the argument and follows the option with another option, the second option will be interpreted as the argument. So ALWAYS check input. Assigns value to `OPT_<OPTION>`.
+            * `<OPTION>` - An option that can be thought of as a flag. Assigns `1` to `OPT_<OPTION>`.
+        * `:<NAME>*` - An optional parameter that captures the remainder of arguments, if any. This must be the last element of the route. Assigns remaining arguments to `ARGV_<NAME>` as a string.
+        * `:<NAME>+` - A required parameter that captures the remainder of arguments. This must be the last element of the route. Assigns remaining arguments to `ARGV_<NAME>` as a string.
+        * `:<NAME>@` - A required set of parameters that captures the remainder of arguments. This must be the last element of the route. Assigns remaining arguments to `ARGV_<NAME>` as an array.
+        * `:<NAME>?` - An optional parameter that captures only the last argument. This must be the last element of the route. Assigns value to `ARG_<NAME>`.
+        * `:<NAME>` - A required parameter that captures one argument. Assigns value to `ARG_<NAME>`.
+        * `<STRING>?` - An optional static parameter. Assigns `1` to `STATIC_<STRING>`.
         * `<STRING>` - A required static element.
 * `shellrouteProcess <ARGS...>`:
     * `<ARGS...>` - The arguments you want to test your routes against. Typically you'll want to take from the command line so you'd use `"${@}"`.

@@ -44,7 +44,7 @@ shellrouteSerializeArray() {
 	echo "($(sed -e 's/^ //' <<<"${OUTPUT}"))"
 }
 shellrouteProcess() {
-	local COMMAND_ARGS COMMAND_OPTS ARGS_ORIG ARGS ROUTE_I MATCH ROUTE OPTIONS_SPEC OPTION
+	local COMMAND_ARGS ARGS_ORIG ARGS ROUTE_I MATCH ROUTE OPTIONS_SPEC OPTION
 
 	ARGS_ORIG=("${@}")
 
@@ -52,7 +52,6 @@ shellrouteProcess() {
 		ARGS=("${ARGS_ORIG[@]}")
 		eval "ROUTE=(${__SHELL_ROUTER_ROUTES[ROUTE_I]})"
 		COMMAND_ARGS=()
-		COMMAND_OPTS=()
 		MATCH="n"
 
 		while true; do
@@ -79,9 +78,9 @@ shellrouteProcess() {
 						for OPTION in "${OPTIONS_SPEC[@]}"; do
 							if grep -qE "^${ARGS[0]}:?\$" <<<"${OPTION}"; then
 								if ! grep -qE ':$' <<<"${OPTION}"; then
-									COMMAND_OPTS+=("OPT_${OPTION%:}=\"1\"")
+									COMMAND_ARGS+=("OPT_${OPTION%:}=\"1\"")
 								elif [ "${#ARGS[@]}" -ge "2" ]; then
-									COMMAND_OPTS+=("OPT_${OPTION%:}=\"$(sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' <<<"${ARGS[1]}")\"")
+									COMMAND_ARGS+=("OPT_${OPTION%:}=\"$(sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' <<<"${ARGS[1]}")\"")
 									ARGS=("${ARGS[@]:1}")
 								else
 									echo "Error: Option \"${OPTION%:}\" expects a parameter, but none exists" 1>&2
@@ -109,9 +108,9 @@ shellrouteProcess() {
 						for OPTION in "${OPTIONS_SPEC[@]}"; do
 							if grep -qE "^${ARGS[0]}:?\$" <<<"${OPTION}"; then
 								if ! grep -qE ':$' <<<"${OPTION}"; then
-									COMMAND_OPTS+=("OPT_${OPTION%:}=\"1\"")
+									COMMAND_ARGS+=("OPT_${OPTION%:}=\"1\"")
 								elif [ "${#ARGS[@]}" -ge "2" ]; then
-									COMMAND_OPTS+=("OPT_${OPTION%:}=\"$(sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' <<<"${ARGS[1]}")\"")
+									COMMAND_ARGS+=("OPT_${OPTION%:}=\"$(sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' <<<"${ARGS[1]}")\"")
 									ARGS=("${ARGS[@]:1}")
 								else
 									echo "Error: Option \"${OPTION%:}\" expects a parameter, but none exists" 1>&2
@@ -147,7 +146,7 @@ shellrouteProcess() {
 					break
 				fi
 				if [ "${#ARGS[@]}" != "0" ]; then
-					COMMAND_ARGS+=("ARG_$(sed -e 's/^://' -e 's/\*$//' <<<"${ROUTE[0]}")=\"$(sed -e 's/"/\"/g' -e 's/\\/\\\\/g' <<<"${ARGS[*]}")\"")
+					COMMAND_ARGS+=("ARGV_$(sed -e 's/^://' -e 's/\*$//' <<<"${ROUTE[0]}")=\"$(sed -e 's/"/\"/g' -e 's/\\/\\\\/g' <<<"${ARGS[*]}")\"")
 				fi
 				MATCH="y"
 				break
@@ -159,7 +158,7 @@ shellrouteProcess() {
 					break
 				fi
 				if [ "${#ARGS[@]}" != "0" ]; then
-					COMMAND_ARGS+=("ARG_$(sed -e 's/^://' -e 's/\+$//' <<<"${ROUTE[0]}")=\"$(sed -e 's/"/\"/g' -e 's/\\/\\\\/g' <<<"${ARGS[*]}")\"")
+					COMMAND_ARGS+=("ARGV_$(sed -e 's/^://' -e 's/\+$//' <<<"${ROUTE[0]}")=\"$(sed -e 's/"/\"/g' -e 's/\\/\\\\/g' <<<"${ARGS[*]}")\"")
 					MATCH="y"
 				else
 					MATCH="n"
@@ -203,7 +202,7 @@ shellrouteProcess() {
 
 				elif [ "${ARGS[0]}" = "${ROUTE[0]}" ]; then
 					# Trim from both
-					COMMAND_ARGS+=("ARG_$(sed -e 's/\?$//' <<<"${ROUTE[0]}")=\"1\"")
+					COMMAND_ARGS+=("STATIC_$(sed -e 's/\?$//' <<<"${ROUTE[0]}")=\"1\"")
 					ARGS=("${ARGS[@]:1}")
 					ROUTE=("${ROUTE[@]:1}")
 				fi
@@ -225,7 +224,7 @@ shellrouteProcess() {
 	done
 
 	if [ "${MATCH}" = "y" ]; then
-		"${__SHELL_ROUTER_COMMANDS[ROUTE_I]}" "${COMMAND_ARGS[@]}" "${COMMAND_OPTS[@]}"
+		"${__SHELL_ROUTER_COMMANDS[ROUTE_I]}" "${COMMAND_ARGS[@]}"
 		return 0
 	fi
 

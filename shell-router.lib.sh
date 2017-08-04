@@ -44,7 +44,7 @@ shellrouteSerializeArray() {
 	echo "($(sed -e 's/^ //' <<<"${OUTPUT}"))"
 }
 shellrouteProcess() {
-	local COMMAND_ARGS ARGS_ORIG ARGS ROUTE_I MATCH ROUTE OPTIONS_SPEC OPTION
+	local COMMAND_ARGS ARGS_ORIG ARGS ROUTE_I MATCH ROUTE OPTIONS_SPEC OPTION OPTION_FOUND
 
 	ARGS_ORIG=("${@}")
 
@@ -65,6 +65,39 @@ shellrouteProcess() {
 				break
 			fi
 
+#			if grep -qE '^:-.+\*$' <<<"${ROUTE[0]}"; then
+#				# Options, until a non-option or the end
+#				if [ "${#ARGS[@]}" != "0" ]; then
+#					# Parse options
+#					OPTIONS_SPEC=($(sed -e 's/^:-//' -e 's/\*$//' -e 's/,/ /g' <<<"${ROUTE[0]}"))
+#					while [ "${#ARGS[@]}" != "0" ]; do
+#						OPTION_FOUND=""
+#						for OPTION in "${OPTIONS_SPEC[@]}"; do
+#							if grep -qE "^${ARGS[0]}:?\$" <<<"${OPTION}"; then
+#								if ! grep -qE ':$' <<<"${OPTION}"; then
+#									COMMAND_ARGS+=("OPT_$(sed -e 's/[^a-zA-z0-9_]/_/g' <<<"${OPTION%:}")=\"1\"")
+#									OPTION_FOUND="y"
+#								elif [ "${#ARGS[@]}" -ge "2" ]; then
+#									COMMAND_ARGS+=("OPT_$(sed -e 's/[^a-zA-z0-9_]/_/g' <<<"${OPTION%:}")=\"$(sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' <<<"${ARGS[1]}")\"")
+#									ARGS=("${ARGS[@]:1}")
+#								else
+#									echo "Error: Option \"${OPTION%:}\" expects a parameter, but none exists" 1>&2
+#									return 1
+#								fi
+#								break
+#							fi
+#						done
+#						if [ -n "${OPTION_FOUND}" ]; then
+#							ARGS=("${ARGS[@]:1}")
+#						else
+#							break
+#						fi
+#					done
+#				fi
+#				MATCH="y"
+#				break
+#
+#			else
 			if grep -qE '^::.+\*$' <<<"${ROUTE[0]}"; then
 				# Optional options, all the way to the end
 				if [ "${#ROUTE[@]}" != "1" ]; then

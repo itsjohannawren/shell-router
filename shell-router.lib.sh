@@ -240,8 +240,22 @@ shellrouteProcess() {
 					ROUTE=("${ROUTE[@]:1}")
 				fi
 
+			elif grep -qE '\^$' <<<"${ROUTE[0]}"; then
+				# Captured required element
+				ROUTE[0]="$(sed -e 's/\^$//' <<<"${ROUTE[0]}")"
+				if [ "${#ARGS[@]}" = "0" ] || [ "${ARGS[0]}" != "${ROUTE[0]}" ]; then
+					MATCH="n"
+					break
+
+				elif [ "${ARGS[0]}" = "${ROUTE[0]}" ]; then
+					# Trim from both
+					COMMAND_ARGS+=("STATIC_$(sed -e 's/\?$//' <<<"${ROUTE[0]}")=\"1\"")
+					ARGS=("${ARGS[@]:1}")
+					ROUTE=("${ROUTE[@]:1}")
+				fi
+
 			else
-				# Required element
+				# Uncaptured required element
 				if [ "${#ARGS[@]}" = "0" ] || [ "${ARGS[0]}" != "${ROUTE[0]}" ]; then
 					MATCH="n"
 					break

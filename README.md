@@ -5,14 +5,14 @@ Express.js-esque routing for script arguments
 
 Copyright
 ---------
-(C) 2015 Jeff Walter <jeff@404ster.com>, http://jwalter.sh/
+(C) 2015-2017 Jeff Walter <jeff@404ster.com>, http://jeffw.org/
 
 License
 -------
 
 The MIT License (MIT)
 
-Copyright (c) 2015 Jeff Walter <jeff@404ster.com>
+Copyright (c) 2015-2017 Jeff Walter <jeff@404ster.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -62,6 +62,7 @@ Usage
         * `:<NAME>?` - An optional parameter that captures only the last argument. This must be the last element of the route. Assigns value to `ARG_<NAME>`.
         * `:<NAME>` - A required parameter that captures one argument. Assigns value to `ARG_<NAME>`.
         * `<STRING>?` - An optional static parameter. Assigns `1` to `STATIC_<STRING>`.
+        * `<STRING>^` - A required static parameter. Assigns `1` to `STATIC_<STRING>`.
         * `<STRING>` - A required static element.
 * `shellrouteProcess <ARGS...>`:
     * `<ARGS...>` - The arguments you want to test your routes against. Typically you'll want to take from the command line so you'd use `"${@}"`.
